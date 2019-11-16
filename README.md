@@ -38,6 +38,16 @@ provider:
   profile: sls_admin_role
 ```
 
+-------------------------------------------------
+## ユーザーの MFA の ARN の登録
+### mfa.cfg の設定
+
+* 各ユーザーの MFA の ARN を記載
+
+```sh
+my_name="arn:aws:iam::750747051508:mfa/yasuaki_shibata"
+serverless="arn:aws:iam::750747051508:mfa/serverless_framework"
+```
 
 ## aws cli を使うための環境設定
 
@@ -86,13 +96,3 @@ aws_secret_access_key = AAAAAAAAP
 ```
 
 
--------------------------------------------------
-## ユーザーの MFA の ARN の登録
-### mfa.cfg の設定
-
-* 各ユーザーの MFA の ARN を記載
-
-```sh
-my_name="arn:aws:iam::750747051508:mfa/yasuaki_shibata"
-serverless="arn:aws:iam::750747051508:mfa/serverless_framework"
-```
