@@ -10,15 +10,7 @@
 # export AWS_SECRET_ACCESS_KEY='SECRET'
 # export AWS_SESSION_TOKEN='TOKEN'
 
-AWS_CLI=`which aws`
-
-# Check aws cli existence
-if [ $? -ne 0 ]; then
-    echo "AWS CLI がインストールされていません。シェルを終了します"
-    return 1
-else
-    echo "$AWS_CLI にある AWS CLI を今から利用します"
-fi
+NUM_OF_VALID_TOKENA=6
 
 # Check arguments
 if [[ $# -ne 2 ]]; then
@@ -39,22 +31,41 @@ fi
 
 AWS_CLI_PROFILE=$1
 MFA_TOKEN_CODE=$2
+
 # extract iam ARN
-ARN_OF_MFA=$(grep "^$AWS_CLI_PROFILE" mfa.cfg | cut -d '=' -f 2- | tr -d '""')
+MFA_ARN=$(grep "^$AWS_CLI_PROFILE" mfa.cfg | cut -d '=' -f 2- | tr -d '""')
+# extract selected profile
+SELECTED_PROFILE=$(grep "^$AWS_CLI_PROFILE" mfa.cfg | cut -d '=' -f -1 | tr -d '')
+
+# check profile existence
+if [ $SELECTED_PROFILE = $1 ]; then
+    echo "profile $1 を使用します"
+else
+    echo "profile $1 は mfa.cfg 内に存在していません"
+    return 1
+fi
+
+# check if given token is digits
+rgx=^[0-9]+$
+if ! [[ $MFA_TOKEN_CODE =~ $rgx ]]; then
+    echo "トークンは数値のはずです。$MFA_TOKEN_CODE は数値ではありません"
+    return 1
+fi
+
+# check the token length
+if ! [ ${#MFA_TOKEN_CODE} -eq $NUM_OF_VALID_TOKENA ];then
+    echo "トークン の長さが" ${#MFA_TOKEN_CODE} "文字です。 $NUM_OF_VALID_TOKENA 文字のトークンを使用してください。"
+    return 1
+fi
 
 echo "AWS-CLI Profile: $AWS_CLI_PROFILE"
-echo "MFA ARN: $ARN_OF_MFA"
+echo "MFA ARN: $MFA_ARN"
 echo "MFA Token Code: $MFA_TOKEN_CODE"
 
-if [ -z "$ARN_OF_MFA" ]; then
-    echo "profile $AWS_CLI_PROFILE は設定されていません"
-    return 1
-else
-    cp ~/.token_file ~/.token_file.bak
-    aws --profile $AWS_CLI_PROFILE sts get-session-token --duration 129600 \
-      --serial-number $ARN_OF_MFA --token-code $MFA_TOKEN_CODE --output text \
-      | awk '{printf("export AWS_ACCESS_KEY_ID=\"%s\"\nexport AWS_SECRET_ACCESS_KEY=\"%s\"\nexport AWS_SESSION_TOKEN=\"%s\"\nexport AWS_SECURITY_TOKEN=\"%s\"\n",$2,$4,$5,$5)}' | tee ~/.token_file=~~
-fi
+aws --profile $AWS_CLI_PROFILE sts get-session-token --duration 129600 \
+    --serial-number $MFA_ARN --token-code $MFA_TOKEN_CODE --output text \
+    | awk '{printf("export AWS_ACCESS_KEY_ID=\"%s\"\nexport AWS_SECRET_ACCESS_KEY=\"%s\"\nexport AWS_SESSION_TOKEN=\"%s\"\nexport AWS_SECURITY_TOKEN=\"%s\"\n",$2,$4,$5,$5)}' \
+    | tee ~/.token_file=~~
 
 
 # serverless framework will load ~/.aws/config
