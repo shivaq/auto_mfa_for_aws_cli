@@ -74,6 +74,7 @@ aws --profile $AWS_CLI_PROFILE sts get-session-token --duration 129600 \
 
 # check if it's succeeded
 if [ -s $TEMP_FILE ]; then
+    source ~/.token_file
     echo "MFA トークンを設定しました"
     # serverless framework will load ~/.aws/config
     export AWS_SDK_LOAD_CONFIG=true
