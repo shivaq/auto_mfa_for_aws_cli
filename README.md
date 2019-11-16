@@ -1,4 +1,45 @@
-# 環境設定
+# MFA トークンを簡単にセットする
+
+## どのファイルをどこに格納するか
+
+### ~ に格納するもの
+* aws cli インストール時に 格納されているはず
+
+~/.aws/credentials
+
+~/.aws/config
+
+* ディレクトリごと格納
+
+~/auto_mfa_for_aws_cli
+
+## 使い方
+
+* MFA で取得した token code を使う
+* フォーマット
+
+`mfa <profile name> <token code>`
+
+```bash
+mfa serverless 012345
+```
+
+
+### スイッチロールをする場合
+
+* --profile で指定するコマンド例
+```bash
+aws iam list-users --profile sls_admin_role
+```
+
+* serverless framework を使う場合は serverless.yml の下記にプロフィールを記載しておく
+```yml
+provider:
+  profile: sls_admin_role
+```
+
+
+## aws cli を使うための環境設定
 
 ## MFA が必要なユーザーを登録しておく
 ### ~/.aws/credentials の設定
@@ -54,40 +95,4 @@ aws_secret_access_key = AAAAAAAAP
 ```sh
 my_name="arn:aws:iam::750747051508:mfa/yasuaki_shibata"
 serverless="arn:aws:iam::750747051508:mfa/serverless_framework"
-```
-
-# どのファイルをどこに格納するか
-
-### ~ に格納
-* aws cli インストール時に 格納されているはず
-
-~/.aws/credentials
-
-~/.aws/config
-
-### 2つのファイルを同じパスに格納
-* 任意の場所でよい
-
-mfa.cfg
-
-set_mfa_token.sh
-
-
-# 使い方
-
-* token code は MFA で取得したもの
-* set_mfa_token.sh のあるパスで実行
-* フォーマット
-`set_mfa_token.sh <profile name> <token code>`
-
-```bash
-set_mfa_token.sh serverless 012345
-```
-
-
-## スイッチロールをする場合
-
-* --profile で
-```bash
-aws iam list-users --profile sls_admin_role
 ```
