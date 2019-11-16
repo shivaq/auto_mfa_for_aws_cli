@@ -55,3 +55,7 @@ else
       --serial-number $ARN_OF_MFA --token-code $MFA_TOKEN_CODE --output text \
       | awk '{printf("export AWS_ACCESS_KEY_ID=\"%s\"\nexport AWS_SECRET_ACCESS_KEY=\"%s\"\nexport AWS_SESSION_TOKEN=\"%s\"\nexport AWS_SECURITY_TOKEN=\"%s\"\n",$2,$4,$5,$5)}' | tee ~/.token_file=~~
 fi
+
+
+# serverless framework will load ~/.aws/config
+export AWS_SDK_LOAD_CONFIG=true
