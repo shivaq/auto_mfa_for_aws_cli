@@ -15,7 +15,7 @@ AWS_CLI=`which aws`
 # Check aws cli existence
 if [ $? -ne 0 ]; then
     echo "AWS CLI がインストールされていません。シェルを終了します"
-    exit 1
+    return 1
 else
     echo "$AWS_CLI にある AWS CLI を今から利用します"
 fi
@@ -27,14 +27,14 @@ if [[ $# -ne 2 ]]; then
   echo "Where:"
   echo "   <MFA_TOKEN_CODE> = virtual MFA device から取得したコード"
   echo "   <AWS_CLI_PROFILE> = aws-cli profile $HOME/.aws/config に記述されている"
-  exit 1
+  return 1
 fi
 
 # Check config files
 echo "mfa.cfg を読み込みます。。。"
 if [ ! -r mfa.cfg ]; then
     echo "mfa.cfg がありません。作成しないとMFAセットできません"
-    exit 1
+    return 1
 fi
 
 AWS_CLI_PROFILE=$1
@@ -48,7 +48,7 @@ echo "MFA Token Code: $MFA_TOKEN_CODE"
 
 if [ -z "$ARN_OF_MFA" ]; then
     echo "profile $AWS_CLI_PROFILE は設定されていません"
-    exit 1
+    return 1
 else
     cp ~/.token_file ~/.token_file.bak
     aws --profile $AWS_CLI_PROFILE sts get-session-token --duration 129600 \
