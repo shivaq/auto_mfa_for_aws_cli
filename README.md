@@ -38,6 +38,17 @@ provider:
   profile: sls_admin_role
 ```
 
+* 下記のように、そのロールのプロフィールが見つからないエラーが出力される場合
+
+```bash
+  Error: Profile sls_admin_role does not exist
+```
+
+* 下記を実行
+```bash
+export AWS_SDK_LOAD_CONFIG=true
+```
+
 -------------------------------------------------
 ## ユーザーの MFA の ARN の登録
 ### mfa.cfg の設定
@@ -94,5 +105,3 @@ aws_secret_access_key = AAAAAAAAP
     role_arn = arn:aws:iam::1234567890:role/Some_Role_In_An_Aws_Account
 
 ```
-
-
